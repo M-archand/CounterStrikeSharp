@@ -239,7 +239,7 @@ jobs:
           body: |
             ${{ steps.git-cliff.outputs.content }}
 
-            Please refer to [CHANGELOG.md](https://github.com/roflmuffin/CounterStrikeSharp/blob/${{ github.ref_name }}/CHANGELOG.md) for details.
+            Please refer to [CHANGELOG.md](https://github.com/M-archand/CounterStrikeSharp/blob/${{ github.ref_name }}/CHANGELOG.md) for details.
           files: |
             counterstrikesharp-windows-${{ needs.setup.outputs.gitversion_semver }}.zip
             counterstrikesharp-with-runtime-windows-${{ needs.setup.outputs.gitversion_semver }}.zip
