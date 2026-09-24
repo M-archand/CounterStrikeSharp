@@ -132,45 +132,12 @@ void ValveFunction::Call(ScriptContext& script_context, int offset, bool bypass)
         int contextIndex = i + offset;
         switch (m_Args[i])
         {
-            case DATA_TYPE_BOOL:
-                dcArgBool(g_pCallVM, script_context.GetArgument<bool>(contextIndex));
-                break;
-            case DATA_TYPE_CHAR:
-                dcArgChar(g_pCallVM, script_context.GetArgument<char>(contextIndex));
-                break;
-            case DATA_TYPE_UCHAR:
-                dcArgChar(g_pCallVM, script_context.GetArgument<unsigned char>(contextIndex));
-                break;
-            case DATA_TYPE_SHORT:
-                dcArgShort(g_pCallVM, script_context.GetArgument<short>(contextIndex));
-                break;
-            case DATA_TYPE_USHORT:
-                dcArgShort(g_pCallVM, script_context.GetArgument<unsigned short>(contextIndex));
-                break;
-            case DATA_TYPE_INT:
-                dcArgInt(g_pCallVM, script_context.GetArgument<int>(contextIndex));
-                break;
-            case DATA_TYPE_UINT:
-                dcArgInt(g_pCallVM, script_context.GetArgument<unsigned int>(contextIndex));
-                break;
-            case DATA_TYPE_LONG:
-                dcArgLong(g_pCallVM, script_context.GetArgument<long>(contextIndex));
-                break;
-            case DATA_TYPE_ULONG:
-                dcArgLong(g_pCallVM, script_context.GetArgument<unsigned long>(contextIndex));
-                break;
-            case DATA_TYPE_LONG_LONG:
-                dcArgLongLong(g_pCallVM, script_context.GetArgument<long long>(contextIndex));
-                break;
-            case DATA_TYPE_ULONG_LONG:
-                dcArgLongLong(g_pCallVM, script_context.GetArgument<unsigned long long>(contextIndex));
-                break;
-            case DATA_TYPE_FLOAT:
-                dcArgFloat(g_pCallVM, script_context.GetArgument<float>(contextIndex));
-                break;
-            case DATA_TYPE_DOUBLE:
-                dcArgDouble(g_pCallVM, script_context.GetArgument<double>(contextIndex));
-                break;
+#define ARG(E, T, F, N, D)                                                \
+    case DATA_TYPE_##E:                                                   \
+        dcArg##D(g_pCallVM, script_context.GetArgument<T>(contextIndex)); \
+        break;
+            CSSHARP_NUMERIC_DATA_TYPES(ARG)
+#undef ARG
             case DATA_TYPE_POINTER:
                 dcArgPointer(g_pCallVM, script_context.GetArgument<void*>(contextIndex));
                 break;
@@ -194,51 +161,12 @@ void ValveFunction::Call(ScriptContext& script_context, int offset, bool bypass)
         case DATA_TYPE_VOID:
             CallHelperVoid(g_pCallVM, m_target);
             break;
-        case DATA_TYPE_BOOL:
-            script_context.SetResult(CallHelper<bool>(dcCallChar, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_CHAR:
-            script_context.SetResult(CallHelper<char>(dcCallChar, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_UCHAR:
-            script_context.SetResult(CallHelper<unsigned char>(dcCallChar, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_SHORT:
-            script_context.SetResult(CallHelper<short>(dcCallShort, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_USHORT:
-            script_context.SetResult(CallHelper<unsigned short>(dcCallShort, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_INT:
-            script_context.SetResult(CallHelper<int>(dcCallInt, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_UINT:
-            script_context.SetResult(CallHelper<unsigned int>(dcCallInt, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_LONG:
-            script_context.SetResult(CallHelper<long>(dcCallLong, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_ULONG:
-            script_context.SetResult(CallHelper<unsigned long>(dcCallLong, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_LONG_LONG:
-            script_context.SetResult(CallHelper<long long>(dcCallLongLong, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_ULONG_LONG:
-            script_context.SetResult(CallHelper<unsigned long long>(dcCallLongLong, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_FLOAT:
-            script_context.SetResult(CallHelper<float>(dcCallFloat, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_DOUBLE:
-            script_context.SetResult(CallHelper<double>(dcCallDouble, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_POINTER:
-            script_context.SetResult(CallHelper<void*>(dcCallPointer, g_pCallVM, m_target));
-            break;
-        case DATA_TYPE_STRING:
-            script_context.SetResult(CallHelper<const char*>(dcCallPointer, g_pCallVM, m_target));
-            break;
+#define RET(E, T, F, N, D)                                                       \
+    case DATA_TYPE_##E:                                                          \
+        script_context.SetResult(CallHelper<T>(dcCall##D, g_pCallVM, m_target)); \
+        break;
+            CSSHARP_SCALAR_DATA_TYPES(RET)
+#undef RET
         default:
             assert(!"Unknown function return type!");
             break;

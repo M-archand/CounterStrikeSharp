@@ -8,35 +8,16 @@
 
 namespace counterstrikesharp {
 namespace {
-// The currently supported public dynamic-function types are all scalar x64 ABI
-// values. Variant/aggregate and void parameters must fail before installing a hook.
-#define SCALAR_TYPES(X)                             \
-    X(BOOL, bool, B, Char)                          \
-    X(CHAR, char, c, Char)                          \
-    X(UCHAR, unsigned char, C, UChar)               \
-    X(SHORT, short, s, Short)                       \
-    X(USHORT, unsigned short, S, UShort)            \
-    X(INT, int, i, Int)                             \
-    X(UINT, unsigned int, I, UInt)                  \
-    X(LONG, long, j, Long)                          \
-    X(ULONG, unsigned long, J, ULong)               \
-    X(LONG_LONG, long long, l, LongLong)            \
-    X(ULONG_LONG, unsigned long long, L, ULongLong) \
-    X(FLOAT, float, f, Float)                       \
-    X(DOUBLE, double, d, Double)                    \
-    X(POINTER, void*, p, Pointer)                   \
-    X(STRING, const char*, Z, Pointer)
-
 char Signature(DataType_t type)
 {
     switch (type)
     {
         case DATA_TYPE_VOID:
             return 'v';
-#define SIG(E, T, F, N) \
-    case DATA_TYPE_##E: \
+#define SIG(E, T, F, N, D) \
+    case DATA_TYPE_##E:    \
         return #F[0];
-            SCALAR_TYPES(SIG)
+            CSSHARP_SCALAR_DATA_TYPES(SIG)
 #undef SIG
         default:
             throw std::invalid_argument("Unsupported dynamic hook type");
@@ -48,10 +29,10 @@ size_t TypeSize(DataType_t type)
     {
         case DATA_TYPE_VOID:
             return 0;
-#define SIZE(E, T, F, N) \
-    case DATA_TYPE_##E:  \
+#define SIZE(E, T, F, N, D) \
+    case DATA_TYPE_##E:     \
         return sizeof(T);
-            SCALAR_TYPES(SIZE)
+            CSSHARP_SCALAR_DATA_TYPES(SIZE)
 #undef SIZE
         default:
             throw std::invalid_argument("Unsupported dynamic hook type");
@@ -64,35 +45,12 @@ void Push(DCCallVM* vm, DataType_t type, const DCValue& v)
 {
     switch (type)
     {
-        case DATA_TYPE_BOOL:
-            dcArgBool(vm, v.B);
-            break;
-        case DATA_TYPE_CHAR:
-        case DATA_TYPE_UCHAR:
-            dcArgChar(vm, v.c);
-            break;
-        case DATA_TYPE_SHORT:
-        case DATA_TYPE_USHORT:
-            dcArgShort(vm, v.s);
-            break;
-        case DATA_TYPE_INT:
-        case DATA_TYPE_UINT:
-            dcArgInt(vm, v.i);
-            break;
-        case DATA_TYPE_LONG:
-        case DATA_TYPE_ULONG:
-            dcArgLong(vm, v.j);
-            break;
-        case DATA_TYPE_LONG_LONG:
-        case DATA_TYPE_ULONG_LONG:
-            dcArgLongLong(vm, v.l);
-            break;
-        case DATA_TYPE_FLOAT:
-            dcArgFloat(vm, v.f);
-            break;
-        case DATA_TYPE_DOUBLE:
-            dcArgDouble(vm, v.d);
-            break;
+#define ARG(E, T, F, N, D) \
+    case DATA_TYPE_##E:    \
+        dcArg##D(vm, v.F); \
+        break;
+        CSSHARP_NUMERIC_DATA_TYPES(ARG)
+#undef ARG
         case DATA_TYPE_POINTER:
         case DATA_TYPE_STRING:
             dcArgPointer(vm, v.p);
@@ -115,39 +73,12 @@ DCValue Call(void* address, const DynamicHookContext& frame)
         case DATA_TYPE_VOID:
             dcCallVoid(vm.get(), address);
             break;
-        case DATA_TYPE_BOOL:
-            result.B = dcCallChar(vm.get(), address) != 0;
-            break;
-        case DATA_TYPE_CHAR:
-        case DATA_TYPE_UCHAR:
-            result.c = dcCallChar(vm.get(), address);
-            break;
-        case DATA_TYPE_SHORT:
-        case DATA_TYPE_USHORT:
-            result.s = dcCallShort(vm.get(), address);
-            break;
-        case DATA_TYPE_INT:
-        case DATA_TYPE_UINT:
-            result.i = dcCallInt(vm.get(), address);
-            break;
-        case DATA_TYPE_LONG:
-        case DATA_TYPE_ULONG:
-            result.j = dcCallLong(vm.get(), address);
-            break;
-        case DATA_TYPE_LONG_LONG:
-        case DATA_TYPE_ULONG_LONG:
-            result.l = dcCallLongLong(vm.get(), address);
-            break;
-        case DATA_TYPE_FLOAT:
-            result.f = dcCallFloat(vm.get(), address);
-            break;
-        case DATA_TYPE_DOUBLE:
-            result.d = dcCallDouble(vm.get(), address);
-            break;
-        case DATA_TYPE_POINTER:
-        case DATA_TYPE_STRING:
-            result.p = dcCallPointer(vm.get(), address);
-            break;
+#define RET(E, T, F, N, D)                          \
+    case DATA_TYPE_##E:                             \
+        result.F = (T)dcCall##D(vm.get(), address); \
+        break;
+            CSSHARP_SCALAR_DATA_TYPES(RET)
+#undef RET
         default:
             throw std::invalid_argument("Unsupported dynamic return type");
     }
@@ -173,10 +104,10 @@ void* Save(DataType_t type, const DCValue& value, KHook::Action action, bool ori
             if (recall) return KHook::DoRecall(action, nullptr, 0, nullptr, nullptr);
             KHook::SaveReturnValue(action, nullptr, 0, nullptr, nullptr, original);
             return nullptr;
-#define SAVE(E, T, F, N) \
-    case DATA_TYPE_##E:  \
+#define SAVE(E, T, F, N, D) \
+    case DATA_TYPE_##E:     \
         return SaveValue<T>(value.F, action, original, recall);
-            SCALAR_TYPES(SAVE)
+            CSSHARP_SCALAR_DATA_TYPES(SAVE)
 #undef SAVE
         default:
             throw std::invalid_argument("Unsupported dynamic return type");
@@ -250,11 +181,11 @@ struct DynamicHook::State
         {
             switch (state.types[i])
             {
-#define READ(E, T, F, N)                           \
+#define READ(E, T, F, N, D)                        \
     case DATA_TYPE_##E:                            \
         frame.arguments[i].F = (T)dcbArg##N(args); \
         break;
-                SCALAR_TYPES(READ)
+                CSSHARP_SCALAR_DATA_TYPES(READ)
 #undef READ
                 default:
                     break; // constructor validates types

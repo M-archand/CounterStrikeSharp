@@ -78,45 +78,12 @@ void GetSchemaValueByName(ScriptContext& script_context)
 
     switch (returnType)
     {
-        case DATA_TYPE_BOOL:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<bool>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_CHAR:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<char>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_UCHAR:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<unsigned char>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_SHORT:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<short>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_USHORT:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<unsigned short>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_INT:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<int>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_UINT:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<unsigned int>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_LONG:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<long>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_ULONG:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<unsigned long>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_LONG_LONG:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<long long>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_ULONG_LONG:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<uint64_t>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_FLOAT:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<float>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
-        case DATA_TYPE_DOUBLE:
-            script_context.SetResult(*reinterpret_cast<std::add_pointer_t<double>>((uintptr_t)(instancePointer) + m_key.offset));
-            break;
+#define GET(E, T, F, N, D)                                                                                               \
+    case DATA_TYPE_##E:                                                                                                  \
+        script_context.SetResult(*reinterpret_cast<std::add_pointer_t<T>>((uintptr_t)(instancePointer) + m_key.offset)); \
+        break;
+        CSSHARP_NUMERIC_DATA_TYPES(GET)
+#undef GET
         case DATA_TYPE_POINTER:
             script_context.SetResult(reinterpret_cast<std::add_pointer_t<void>>((uintptr_t)(instancePointer) + m_key.offset));
             break;
@@ -150,54 +117,12 @@ void SetSchemaValueByName(ScriptContext& script_context)
 
     switch (dataType)
     {
-        case DATA_TYPE_BOOL:
-            *reinterpret_cast<std::add_pointer_t<bool>>((uintptr_t)(instancePointer) + m_key.offset) = script_context.GetArgument<bool>(4);
-            break;
-        case DATA_TYPE_CHAR:
-            *reinterpret_cast<std::add_pointer_t<char>>((uintptr_t)(instancePointer) + m_key.offset) = script_context.GetArgument<char>(4);
-            break;
-        case DATA_TYPE_UCHAR:
-            *reinterpret_cast<std::add_pointer_t<unsigned char>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<unsigned char>(4);
-            break;
-        case DATA_TYPE_SHORT:
-            *reinterpret_cast<std::add_pointer_t<short>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<short>(4);
-            break;
-        case DATA_TYPE_USHORT:
-            *reinterpret_cast<std::add_pointer_t<unsigned short>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<unsigned short>(4);
-            break;
-        case DATA_TYPE_INT:
-            *reinterpret_cast<std::add_pointer_t<int>>((uintptr_t)(instancePointer) + m_key.offset) = script_context.GetArgument<int>(4);
-            break;
-        case DATA_TYPE_UINT:
-            *reinterpret_cast<std::add_pointer_t<unsigned int>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<unsigned int>(4);
-            break;
-        case DATA_TYPE_LONG:
-            *reinterpret_cast<std::add_pointer_t<long>>((uintptr_t)(instancePointer) + m_key.offset) = script_context.GetArgument<long>(4);
-            break;
-        case DATA_TYPE_ULONG:
-            *reinterpret_cast<std::add_pointer_t<unsigned long>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<unsigned long>(4);
-            break;
-        case DATA_TYPE_LONG_LONG:
-            *reinterpret_cast<std::add_pointer_t<long long>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<long long>(4);
-            break;
-        case DATA_TYPE_ULONG_LONG:
-            *reinterpret_cast<std::add_pointer_t<uint64_t>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<uint64_t>(4);
-            break;
-        case DATA_TYPE_FLOAT:
-            *reinterpret_cast<std::add_pointer_t<float>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<float>(4);
-            break;
-        case DATA_TYPE_DOUBLE:
-            *reinterpret_cast<std::add_pointer_t<double>>((uintptr_t)(instancePointer) + m_key.offset) =
-                script_context.GetArgument<double>(4);
-            break;
+#define SET(E, T, F, N, D)                                                                                                        \
+    case DATA_TYPE_##E:                                                                                                           \
+        *reinterpret_cast<std::add_pointer_t<T>>((uintptr_t)(instancePointer) + m_key.offset) = script_context.GetArgument<T>(4); \
+        break;
+        CSSHARP_NUMERIC_DATA_TYPES(SET)
+#undef SET
         case DATA_TYPE_POINTER:
             *reinterpret_cast<void**>((uintptr_t)(instancePointer) + m_key.offset) = script_context.GetArgument<void*>(4);
             break;

@@ -31,6 +31,29 @@ enum DataType_t
     DATA_TYPE_VARIANT
 };
 
+// X-macro over the scalar types dynamic functions support: (enum suffix, C++ type, DCValue field, dyncallback suffix, dyncall suffix).
+// Variant/aggregate types are rejected; bool goes through Char because DCbool is an int and dyncall only has signed entry points.
+#define CSSHARP_NUMERIC_DATA_TYPES(X)                         \
+    X(BOOL, bool, B, Char, Char)                              \
+    X(CHAR, char, c, Char, Char)                              \
+    X(UCHAR, unsigned char, C, UChar, Char)                   \
+    X(SHORT, short, s, Short, Short)                          \
+    X(USHORT, unsigned short, S, UShort, Short)               \
+    X(INT, int, i, Int, Int)                                  \
+    X(UINT, unsigned int, I, UInt, Int)                       \
+    X(LONG, long, j, Long, Long)                              \
+    X(ULONG, unsigned long, J, ULong, Long)                   \
+    X(LONG_LONG, long long, l, LongLong, LongLong)            \
+    X(ULONG_LONG, unsigned long long, L, ULongLong, LongLong) \
+    X(FLOAT, float, f, Float, Float)                          \
+    X(DOUBLE, double, d, Double, Double)
+
+#define CSSHARP_POINTER_DATA_TYPES(X)      \
+    X(POINTER, void*, p, Pointer, Pointer) \
+    X(STRING, const char*, Z, Pointer, Pointer)
+
+#define CSSHARP_SCALAR_DATA_TYPES(X) CSSHARP_NUMERIC_DATA_TYPES(X) CSSHARP_POINTER_DATA_TYPES(X)
+
 // An invocation-local handle exposed to managed DynamicHook. Arguments are
 // decoded from the platform ABI by dyncallback, not from a private detour.
 class DynamicHookContext
@@ -81,45 +104,12 @@ class DynamicHookContext
         {
             switch (type)
             {
-                case DATA_TYPE_BOOL:
-                    target.B = static_cast<bool>(value);
-                    break;
-                case DATA_TYPE_CHAR:
-                    target.c = static_cast<char>(value);
-                    break;
-                case DATA_TYPE_UCHAR:
-                    target.C = static_cast<unsigned char>(value);
-                    break;
-                case DATA_TYPE_SHORT:
-                    target.s = static_cast<short>(value);
-                    break;
-                case DATA_TYPE_USHORT:
-                    target.S = static_cast<unsigned short>(value);
-                    break;
-                case DATA_TYPE_INT:
-                    target.i = static_cast<int>(value);
-                    break;
-                case DATA_TYPE_UINT:
-                    target.I = static_cast<unsigned int>(value);
-                    break;
-                case DATA_TYPE_LONG:
-                    target.j = static_cast<long>(value);
-                    break;
-                case DATA_TYPE_ULONG:
-                    target.J = static_cast<unsigned long>(value);
-                    break;
-                case DATA_TYPE_LONG_LONG:
-                    target.l = static_cast<long long>(value);
-                    break;
-                case DATA_TYPE_ULONG_LONG:
-                    target.L = static_cast<unsigned long long>(value);
-                    break;
-                case DATA_TYPE_FLOAT:
-                    target.f = static_cast<float>(value);
-                    break;
-                case DATA_TYPE_DOUBLE:
-                    target.d = static_cast<double>(value);
-                    break;
+#define STORE(E, T, F, N, D)              \
+    case DATA_TYPE_##E:                   \
+        target.F = static_cast<T>(value); \
+        break;
+                CSSHARP_NUMERIC_DATA_TYPES(STORE)
+#undef STORE
                 default:
                     throw std::invalid_argument("Hook value is not numeric");
             }
