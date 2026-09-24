@@ -346,6 +346,10 @@ namespace CounterStrikeSharp.API.Core
             cxt->numArguments++;
         }
 
+        // One buffer per thread (like native SetResult), native reads it after the transient context is gone.
+        [ThreadStatic] private static IntPtr _lastResultString;
+        [ThreadStatic] private static int _lastResultStringCapacity;
+
         [SecurityCritical]
         internal unsafe void SetResultString(fxScriptContext* cxt, string str)
         {
@@ -355,15 +359,23 @@ namespace CounterStrikeSharp.API.Core
                 return;
             }
 
-            int maxBytes = Encoding.UTF8.GetMaxByteCount(str.Length);
-            var ptr = Marshal.AllocHGlobal(maxBytes + 1);
+            int maxBytes = Encoding.UTF8.GetMaxByteCount(str.Length) + 1;
+            if (_lastResultStringCapacity < maxBytes)
+            {
+                if (_lastResultString != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(_lastResultString);
+                }
 
-            var dest = new Span<byte>((void*)ptr, maxBytes + 1);
+                _lastResultString = Marshal.AllocHGlobal(maxBytes);
+                _lastResultStringCapacity = maxBytes;
+            }
+
+            var dest = new Span<byte>((void*)_lastResultString, maxBytes);
             int written = Encoding.UTF8.GetBytes(str, dest);
             dest[written] = 0;
 
-            ms_finalizers.Enqueue(ptr);
-            *(IntPtr*)(&cxt->result[8]) = ptr;
+            *(IntPtr*)(&cxt->result[0]) = _lastResultString;
         }
 
         [SecuritySafeCritical]
