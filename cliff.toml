@@ -2,7 +2,7 @@
 # https://git-cliff.org/docs/configuration
 
 [remote.github]
-owner = "roflmuffin"
+owner = "M-archand"
 repo = "CounterStrikeSharp"
 # token = ""
 
@@ -69,12 +69,10 @@ filter_unconventional = true
 split_commits = false
 # An array of regex based parsers to modify commit messages prior to further processing.
 commit_preprocessors = [
-    { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
-    { pattern = '\[no ci\]', replace = "" }
-  ]
-commit_parsers = [
-    { message = "^release:", skip = true }
+  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+  { pattern = '\[no ci\]', replace = "" },
 ]
+commit_parsers = [{ message = "^release:", skip = true }]
 # Exclude commits that are not matched by any commit parser.
 filter_commits = false
 # Order releases topologically instead of chronologically.
