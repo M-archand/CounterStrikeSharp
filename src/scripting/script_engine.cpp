@@ -25,7 +25,6 @@
 
 #include "scripting/script_engine.h"
 
-#include <stack>
 #include <unordered_map>
 
 #include "core/log.h"
@@ -35,33 +34,22 @@ static std::unordered_map<uint64_t, counterstrikesharp::TNativeHandler> g_regist
 
 namespace counterstrikesharp {
 
-std::stack<std::string> errors;
-
 void ScriptContext::ThrowNativeError(const char* msg, ...)
 {
+    char buff[1024];
     va_list arglist;
-    char dest[256];
     va_start(arglist, msg);
-    vsprintf(dest, msg, arglist);
+    vsnprintf(buff, sizeof(buff), msg, arglist);
     va_end(arglist);
-    char buff[256];
-    snprintf(buff, sizeof(buff), dest, arglist);
 
-    auto error_string = std::string(buff);
-    errors.push(error_string);
-
-    const char* ptr = errors.top().c_str();
+    // SetResult copies strings into thread-local storage, so buff can go out of scope.
+    const char* ptr = buff;
     this->SetResult(ptr);
     *this->m_has_error = 1;
 }
 
 void ScriptContext::Reset()
 {
-    if (*m_has_error)
-    {
-        errors.pop();
-    }
-
     m_numResults = 0;
     m_numArguments = 0;
     *m_has_error = 0;
