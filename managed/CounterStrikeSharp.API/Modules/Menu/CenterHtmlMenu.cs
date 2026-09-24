@@ -14,6 +14,7 @@
  *  along with CounterStrikeSharp.  If not, see <https://www.gnu.org/licenses/>. *
  */
 
+using System.Globalization;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
@@ -45,7 +46,8 @@ public class CenterHtmlMenu : BaseMenu
         {
             throw new InvalidOperationException("This method is unsupported with the CenterHtmlMenu constructor used." +
                                                 "Please provide a BasePlugin in the constructor.");
-        };
+        }
+        ;
 
         MenuManager.OpenCenterHtmlMenu(_plugin, player, this);
     }
@@ -62,6 +64,16 @@ public class CenterHtmlMenu : BaseMenu
 public class CenterHtmlMenuInstance : BaseMenuInstance
 {
     private readonly BasePlugin _plugin;
+
+    // Reused across ticks to avoid allocating a new builder per render
+    private readonly StringBuilder _builder = new();
+    private EventShowSurvivalRespawnStatus? _panelEvent;
+
+    // Labels are localized once per player language instead of every tick
+    private CultureInfo? _labelLanguage;
+    private string _previousLabel = string.Empty;
+    private string _nextLabel = string.Empty;
+    private string _closeLabel = string.Empty;
     public override int NumPerPage => 5; // one less than the actual number of items per page to avoid truncated options
     protected override int MenuItemsPerPage => (Menu.ExitButton ? 0 : 1) + ((HasPrevButton && HasNextButton) ? NumPerPage - 1 : NumPerPage);
 
@@ -76,6 +88,7 @@ public class CenterHtmlMenuInstance : BaseMenuInstance
     {
         if (MenuManager.GetActiveMenu(Player) != this)
         {
+            FreePanelEvent();
             Reset();
             return;
         }
@@ -85,7 +98,10 @@ public class CenterHtmlMenuInstance : BaseMenuInstance
             return;
         }
 
-        var builder = new StringBuilder();
+        RefreshLabels();
+
+        var builder = _builder;
+        builder.Clear();
         builder.Append($"<b><font color='{centerHtmlMenu.TitleColor}'>{centerHtmlMenu.Title}</font></b>");
         builder.AppendLine("<br>");
 
@@ -101,24 +117,46 @@ public class CenterHtmlMenuInstance : BaseMenuInstance
 
         if (HasPrevButton)
         {
-            builder.AppendFormat($"<font color='{centerHtmlMenu.PrevPageColor}'>!7</font> &#60;- {Application.Localizer["menu.button.previous"]}");
+            builder.Append($"<font color='{centerHtmlMenu.PrevPageColor}'>!7</font> &#60;- {_previousLabel}");
             builder.AppendLine("<br>");
         }
 
         if (HasNextButton)
         {
-            builder.AppendFormat($"<font color='{centerHtmlMenu.NextPageColor}'>!8</font> -> {Application.Localizer["menu.button.next"]}");
+            builder.Append($"<font color='{centerHtmlMenu.NextPageColor}'>!8</font> -> {_nextLabel}");
             builder.AppendLine("<br>");
         }
 
         if (centerHtmlMenu.ExitButton)
         {
-            builder.AppendFormat($"<font color='{centerHtmlMenu.CloseColor}'>!9</font> -> {Application.Localizer["menu.button.close"]}");
+            builder.Append($"<font color='{centerHtmlMenu.CloseColor}'>!9</font> -> {_closeLabel}");
             builder.AppendLine("<br>");
         }
 
-        var currentPageText = builder.ToString();
-        Player.PrintToCenterHtml(currentPageText);
+        SendPanel(builder.ToString());
+    }
+
+    // Tick runs under the server culture, so read labels in the player's language and cache until it changes
+    private void RefreshLabels()
+    {
+        var language = Core.Translations.PlayerLanguageExtensions.GetLanguage(Player);
+        if (ReferenceEquals(_labelLanguage, language)) return;
+
+        using var culture = new Core.Translations.WithTemporaryCulture(language);
+        _previousLabel = Application.Localizer["menu.button.previous"];
+        _nextLabel = Application.Localizer["menu.button.next"];
+        _closeLabel = Application.Localizer["menu.button.close"];
+        _labelLanguage = language;
+    }
+
+    // Panel must be resent every tick to stay visible, so reuse one event while the menu is open
+    private void SendPanel(string text)
+    {
+        Guard.IsValidEntity(Player);
+
+        _panelEvent ??= new Core.EventShowSurvivalRespawnStatus(true) { Userid = Player, Duration = 5 };
+        _panelEvent.LocToken = text;
+        _panelEvent.FireEventToClient(Player);
     }
 
     public override void Close()
@@ -126,13 +164,20 @@ public class CenterHtmlMenuInstance : BaseMenuInstance
         base.Close();
         RemoveOnTickListener();
 
+        FreePanelEvent();
+
         // Send a blank message to clear the menu
         Player.PrintToCenterHtml(" ");
     }
 
+    private void FreePanelEvent()
+    {
+        _panelEvent?.Free();
+        _panelEvent = null;
+    }
+
     private void RemoveOnTickListener()
     {
-        var onTick = new Core.Listeners.OnTick(Display);
-        _plugin.RemoveListener("OnTick", onTick);
+        _plugin.RemoveListener<Core.Listeners.OnTick>(Display);
     }
 }
