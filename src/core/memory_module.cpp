@@ -652,6 +652,12 @@ void* CModule::FindInterface(std::string_view name)
 {
     if (_interfaces.empty())
     {
+        if (m_fnCreateInterface == nullptr)
+        {
+            CSSHARP_CORE_ERROR("Could not find interface {} in {}: no CreateInterface export", name, m_pszModule);
+            return nullptr;
+        }
+
         auto RelToAbs = [](std::uintptr_t address, int offset) {
             const auto displacement = *reinterpret_cast<int32_t*>(address + offset);
             return address + offset + displacement + sizeof(int32_t);
@@ -689,9 +695,7 @@ void* CModule::FindInterface(std::string_view name)
 
         if (ret_interface == nullptr)
         {
-            // Replace Error() from hl2sdk-cs2, it essentially calls Plat_ExitProcess
             CSSHARP_CORE_ERROR("Could not find interface {} in {}", name, m_pszModule);
-            Plat_ExitProcess(1);
         }
 
         return ret_interface;
@@ -702,7 +706,7 @@ void* CModule::FindInterface(std::string_view name)
     if (it == _interfaces.end())
     {
         CSSHARP_CORE_ERROR("Could not find interface {} in {}", name, m_pszModule);
-        Plat_ExitProcess(1);
+        return nullptr;
     }
 
     return reinterpret_cast<void*>(it->second);
