@@ -543,7 +543,25 @@
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
+    <Target>F:CounterStrikeSharp.API.Core.BasePlugin.CommandListeners</Target>
+    <Left>./ApiCompat/v202.dll</Left>
+    <Right>obj/Debug/net10.0/CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
     <Target>F:CounterStrikeSharp.API.Core.BasePlugin.ConvarChangeHandlers</Target>
+    <Left>./ApiCompat/v202.dll</Left>
+    <Right>obj/Debug/net10.0/CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>F:CounterStrikeSharp.API.Core.BasePlugin.EntityOutputHooks</Target>
+    <Left>./ApiCompat/v202.dll</Left>
+    <Right>obj/Debug/net10.0/CounterStrikeSharp.API.dll</Right>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>F:CounterStrikeSharp.API.Core.BasePlugin.Handlers</Target>
     <Left>./ApiCompat/v202.dll</Left>
     <Right>obj/Debug/net10.0/CounterStrikeSharp.API.dll</Right>
   </Suppression>
