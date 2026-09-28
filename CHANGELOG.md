@@ -1,3 +1,14 @@
+## What's Changed in v1.0.377
+* chore(deps): bump metamod from 1468 to 1472 ([9cedd33](https://github.com/M-archand/CounterStrikeSharp/commit/9cedd3331568a983a5501da6218075166b417bb5))
+* chore: update schema definitions to 1.41.8.5 ([e33d6e8](https://github.com/M-archand/CounterStrikeSharp/commit/e33d6e8a50e4b02e92c0629c493a0253a87fe79a))
+* fix: share one writer for the combined logger ([18d3489](https://github.com/M-archand/CounterStrikeSharp/commit/18d34899669d97ed08fc4fca2786597e4eed0117))
+* fix: pass all four flags to CBasePlayerController::SetPawn ([2de6203](https://github.com/M-archand/CounterStrikeSharp/commit/2de6203d537e7068e02d7e39f907f41e2700957a))
+* fix: update Windows IsPlayerPawn offset ([536066e](https://github.com/M-archand/CounterStrikeSharp/commit/536066eea59baba447452679a2c62617f01677e5))
+* chore(deps): bump hl2sdk-cs2 to latest (6315f01-> f24de74) ([41ec39d](https://github.com/M-archand/CounterStrikeSharp/commit/41ec39dd48c65e59c3e8e052cbfd3ec2ae28d487))
+* chore(deps): bump libraries/Protobufs from f2c809d to 623ebf5 ([3011b98](https://github.com/M-archand/CounterStrikeSharp/commit/3011b98b0542c3dedad6dfb4f6398c2a497ce2ff))
+* chore: Update Schema Definitions to 1.41.8.4 ([6d6c498](https://github.com/M-archand/CounterStrikeSharp/commit/6d6c498b259108d47d121bb0affb1a9483a77f23))
+* chore(deps): bump libraries/Protobufs from `60d634a` to `f2c809d` in [#6](https://github.com/M-archand/CounterStrikeSharp/pull/6) ([0c06ac2](https://github.com/M-archand/CounterStrikeSharp/commit/0c06ac271a16855a61cf3b57854512aac7c1fb17))
+
 ## What's Changed in v1.0.376
 * ci: point changelog and release links at fork ([0602ce3](https://github.com/M-archand/CounterStrikeSharp/commit/0602ce3fae6e0ea6ab3153969cf4cc8ff98e2808))
 * ci: enable publish job on fork, drop NuGet and Discord steps ([e299b4a](https://github.com/M-archand/CounterStrikeSharp/commit/e299b4a7bf193afc16d368ebdf1aaea5d2d3cd04))
