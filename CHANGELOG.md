@@ -1,3 +1,10 @@
+## What's Changed in v1.0.378
+* chore(deps): bump libraries/Protobufs from bd8f82d to 2d1c5e5 ([47f0456](https://github.com/M-archand/CounterStrikeSharp/commit/47f045683b26d0e5fb88fd95ef45cc12d53f8099))
+* fix: unregister static ConCommands in Unload to avoid segfault at exit ([adb42f6](https://github.com/M-archand/CounterStrikeSharp/commit/adb42f6408783c2616e00c95aee8862ba4db5373))
+* fix(schema): resolve networked flags lazily after entity system exists ([94d7698](https://github.com/M-archand/CounterStrikeSharp/commit/94d769819ef3bf6d00379558c23d86242d917a40))
+* fix(build): search csgo proto path before sdk protobuf src ([c5676fa](https://github.com/M-archand/CounterStrikeSharp/commit/c5676fa01fda176b02089066ed26994f269debac))
+* chore(deps): bump libraries/Protobufs from 623ebf5 to bd8f82d ([1a1cd4d](https://github.com/M-archand/CounterStrikeSharp/commit/1a1cd4ddab1762ec50b60c7324cc4b97fcdd15af))
+
 ## What's Changed in v1.0.377
 * chore(deps): bump metamod from 1468 to 1472 ([9cedd33](https://github.com/M-archand/CounterStrikeSharp/commit/9cedd3331568a983a5501da6218075166b417bb5))
 * chore: update schema definitions to 1.41.8.5 ([e33d6e8](https://github.com/M-archand/CounterStrikeSharp/commit/e33d6e8a50e4b02e92c0629c493a0253a87fe79a))
@@ -8,6 +15,7 @@
 * chore(deps): bump libraries/Protobufs from f2c809d to 623ebf5 ([3011b98](https://github.com/M-archand/CounterStrikeSharp/commit/3011b98b0542c3dedad6dfb4f6398c2a497ce2ff))
 * chore: Update Schema Definitions to 1.41.8.4 ([6d6c498](https://github.com/M-archand/CounterStrikeSharp/commit/6d6c498b259108d47d121bb0affb1a9483a77f23))
 * chore(deps): bump libraries/Protobufs from `60d634a` to `f2c809d` in [#6](https://github.com/M-archand/CounterStrikeSharp/pull/6) ([0c06ac2](https://github.com/M-archand/CounterStrikeSharp/commit/0c06ac271a16855a61cf3b57854512aac7c1fb17))
+* chore(deps): bump libraries/Protobufs from `60d634a` to `f2c809d` by [@dependabot[bot]](https://github.com/dependabot[bot]) ([73b80e1](https://github.com/M-archand/CounterStrikeSharp/commit/73b80e1d5436e5acb77502f8b42ebd55f82aa766))
 
 ## What's Changed in v1.0.376
 * ci: point changelog and release links at fork ([0602ce3](https://github.com/M-archand/CounterStrikeSharp/commit/0602ce3fae6e0ea6ab3153969cf4cc8ff98e2808))
