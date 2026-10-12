@@ -25,6 +25,7 @@
 #include "core/log.h"
 
 #include "tier1/utlmap.h"
+#include <thread>
 #include <schemasystem.h>
 #include <entity2/entitysystem.h>
 #include <entity2/entityclass.h>
@@ -36,6 +37,16 @@
 using SchemaKeyValueMap_t = CUtlOrderedMap<uint32_t, SchemaKey>;
 using SchemaTableMap_t = CUtlOrderedMap<uint32_t, SchemaKeyValueMap_t*>;
 
+// Classes whose table was built before the serializer database existed, their networked flags are resolved on a later lookup
+struct PendingNetworkedClass_t
+{
+    uint32_t classKey;
+    SchemaClassInfoData_t* pClassInfo;
+};
+
+static SchemaTableMap_t g_schemaTableMap;
+static std::vector<PendingNetworkedClass_t> g_pendingNetworkedClasses;
+
 static CNetworkSerializerCodeGenDatabase* GetNetworkSerializerDatabase()
 {
     if (!GameEntitySystem()) return nullptr;
@@ -46,9 +57,8 @@ static CNetworkSerializerCodeGenDatabase* GetNetworkSerializerDatabase()
     return pEntityClass->m_NetworkSerializerInfo->m_pDatabase;
 }
 
-static CNetworkSerializerClassInfo* FindNetworkSerializerClassInfo(const char* className)
+static CNetworkSerializerClassInfo* FindNetworkSerializerClassInfo(CNetworkSerializerCodeGenDatabase* pDatabase, const char* className)
 {
-    CNetworkSerializerCodeGenDatabase* pDatabase = GetNetworkSerializerDatabase();
     if (!pDatabase) return nullptr;
 
     auto index = pDatabase->m_ClassInfos.Find(className);
@@ -61,6 +71,36 @@ static bool IsFieldNetworked(CNetworkSerializerClassInfo* pNetworkClassInfo, Sch
 {
     if (!pNetworkClassInfo) return false;
     return pNetworkClassInfo->FindField(field.m_pszName) != nullptr;
+}
+
+static void ResolveNetworkedFlags()
+{
+    if (g_pendingNetworkedClasses.empty()) return;
+
+    // GET_SCHEMA_OFFSET may run off the game thread, only the game thread mutates the cached flags
+    if (counterstrikesharp::globals::gameThreadId != std::this_thread::get_id()) return;
+
+    CNetworkSerializerCodeGenDatabase* pDatabase = GetNetworkSerializerDatabase();
+    if (!pDatabase) return;
+
+    for (const PendingNetworkedClass_t& pending : g_pendingNetworkedClasses)
+    {
+        auto tableMapIndex = g_schemaTableMap.Find(pending.classKey);
+        if (!g_schemaTableMap.IsValidIndex(tableMapIndex)) continue;
+
+        SchemaKeyValueMap_t* keyValueMap = g_schemaTableMap[tableMapIndex];
+        CNetworkSerializerClassInfo* pNetworkClassInfo = FindNetworkSerializerClassInfo(pDatabase, pending.pClassInfo->m_pszName);
+
+        for (int i = 0; i < pending.pClassInfo->m_nFieldCount; ++i)
+        {
+            SchemaClassFieldData_t& field = pending.pClassInfo->m_pFields[i];
+            auto memberIndex = keyValueMap->Find(hash_32_fnv1a_const(field.m_pszName));
+            if (keyValueMap->IsValidIndex(memberIndex))
+                keyValueMap->Element(memberIndex).networked = IsFieldNetworked(pNetworkClassInfo, field);
+        }
+    }
+
+    g_pendingNetworkedClasses.clear();
 }
 
 static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap, const char* className, uint32_t classKey)
@@ -83,7 +123,15 @@ static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap, const char* cla
     short fieldsSize = pClassInfo->m_nFieldCount;
     SchemaClassFieldData_t* pFields = pClassInfo->m_pFields;
 
-    CNetworkSerializerClassInfo* pNetworkClassInfo = FindNetworkSerializerClassInfo(className);
+    CNetworkSerializerCodeGenDatabase* pDatabase = GetNetworkSerializerDatabase();
+    CNetworkSerializerClassInfo* pNetworkClassInfo = FindNetworkSerializerClassInfo(pDatabase, className);
+
+    if (!pDatabase)
+    {
+        g_pendingNetworkedClasses.push_back({ classKey, pClassInfo });
+        Warning("InitSchemaFieldsForClass(): '%s' was looked up before the entity system exists, networked flags will be resolved later\n",
+                className);
+    }
 
     SchemaKeyValueMap_t* keyValueMap = new SchemaKeyValueMap_t();
     keyValueMap->EnsureCapacity(fieldsSize);
@@ -133,16 +181,17 @@ int16_t schema::FindChainOffset(const char* className)
 
 SchemaKey schema::GetOffset(const char* className, uint32_t classKey, const char* memberName, uint32_t memberKey)
 {
-    static SchemaTableMap_t schemaTableMap;
-    auto tableMapIndex = schemaTableMap.Find(classKey);
-    if (!schemaTableMap.IsValidIndex(tableMapIndex))
+    ResolveNetworkedFlags();
+
+    auto tableMapIndex = g_schemaTableMap.Find(classKey);
+    if (!g_schemaTableMap.IsValidIndex(tableMapIndex))
     {
-        if (InitSchemaFieldsForClass(&schemaTableMap, className, classKey)) return GetOffset(className, classKey, memberName, memberKey);
+        if (InitSchemaFieldsForClass(&g_schemaTableMap, className, classKey)) return GetOffset(className, classKey, memberName, memberKey);
 
         return { 0, 0 };
     }
 
-    SchemaKeyValueMap_t* tableMap = schemaTableMap[tableMapIndex];
+    SchemaKeyValueMap_t* tableMap = g_schemaTableMap[tableMapIndex];
     auto memberIndex = tableMap->Find(memberKey);
     if (!tableMap->IsValidIndex(memberIndex))
     {
