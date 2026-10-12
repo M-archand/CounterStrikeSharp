@@ -249,6 +249,8 @@ bool CounterStrikeSharpMMPlugin::Unload(char* error, size_t maxlen)
         CALL_GLOBAL_LISTENER(OnShutdown());
     }
 
+    ConVar_Unregister();
+
     globals::callbackManager.ReleaseCallback(on_activate_callback);
     globals::callbackManager.ReleaseCallback(on_map_end_callback);
     globals::callbackManager.ReleaseCallback(on_metamod_all_plugins_loaded_callback);
