@@ -1,3 +1,6 @@
+## What's Changed in v1.0.379
+* fix: stop shutdown hangs on Metamod 1474 & 1476 ([bc7141f](https://github.com/M-archand/CounterStrikeSharp/commit/bc7141f143f94c6b5aa18ffe25a1c12976b4b5d6))
+
 ## What's Changed in v1.0.378
 * chore(deps): bump libraries/Protobufs from bd8f82d to 2d1c5e5 ([47f0456](https://github.com/M-archand/CounterStrikeSharp/commit/47f045683b26d0e5fb88fd95ef45cc12d53f8099))
 * fix: unregister static ConCommands in Unload to avoid segfault at exit ([adb42f6](https://github.com/M-archand/CounterStrikeSharp/commit/adb42f6408783c2616e00c95aee8862ba4db5373))
