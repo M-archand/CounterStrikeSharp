@@ -255,6 +255,9 @@ void ConCommandManager::OnShutdown()
 
     globals::callbackManager.ReleaseCallback(m_global_cmd.callback_pre);
     globals::callbackManager.ReleaseCallback(m_global_cmd.callback_post);
+
+    m_global_cmd.callback_pre = nullptr;
+    m_global_cmd.callback_post = nullptr;
 }
 
 void CommandCallback(const CCommandContext& context, const CCommand& command)

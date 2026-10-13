@@ -35,6 +35,7 @@ class CGameSystem : public CBaseGameSystem
     void Shutdown() override
     {
         CSSHARP_CORE_INFO("CGameSystem::Shutdown");
+        sm_bShutdown = true;
         delete sm_Factory;
     }
 
@@ -46,6 +47,7 @@ class CGameSystem : public CBaseGameSystem
     bool DoesGameSystemReallocate() override { return sm_Factory->ShouldAutoAdd(); }
 
     static IGameSystemFactory* sm_Factory;
+    static inline bool sm_bShutdown = false;
 };
 
 class IEntityResourceManifest

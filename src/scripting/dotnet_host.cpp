@@ -92,6 +92,20 @@ void* get_export(void* h, const char* name)
 }
 #endif
 
+void pin_current_module()
+{
+#ifdef WIN32
+    HMODULE module = nullptr;
+    const bool pinned = ::GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+                                             reinterpret_cast<LPCWSTR>(&pin_current_module), &module);
+#else
+    Dl_info info;
+    const bool pinned = dladdr(reinterpret_cast<void*>(&pin_current_module), &info) && info.dli_fname &&
+                        dlopen(info.dli_fname, RTLD_NOW | RTLD_NOLOAD | RTLD_NODELETE);
+#endif
+    if (!pinned) CSSHARP_CORE_WARN("Failed to pin the CounterStrikeSharp module in memory.");
+}
+
 // <SnippetLoadHostFxr>
 // Using the nethost library, discover the location of hostfxr and get exports
 bool load_hostfxr()
@@ -189,6 +203,8 @@ bool CDotNetManager::Initialize()
         CSSHARP_CORE_ERROR("Failed to load CSS API.");
         return false;
     }
+
+    pin_current_module();
 
 #if _WIN32
     const auto dotnetlib_path = std::wstring(css::widen(base_dir) + L"\\api\\CounterStrikeSharp.API.dll");

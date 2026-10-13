@@ -14,7 +14,10 @@
 
 #include "mm_plugin.h"
 
+#include <chrono>
 #include <cstdio>
+#include <cstdlib>
+#include <thread>
 
 #include "core/detours.h"
 #include "core/coreconfig.h"
@@ -254,6 +257,16 @@ bool CounterStrikeSharpMMPlugin::Unload(char* error, size_t maxlen)
     globals::callbackManager.ReleaseCallback(on_activate_callback);
     globals::callbackManager.ReleaseCallback(on_map_end_callback);
     globals::callbackManager.ReleaseCallback(on_metamod_all_plugins_loaded_callback);
+
+    // MM 1476's plugin unloader deadlocks after this, so force a hanging server
+    if (CGameSystem::sm_bShutdown)
+    {
+        std::thread([] {
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::fputs("CSSharp: Server did not exit within 10 seconds of unloading, forcing exit.\n", stderr);
+            std::_Exit(0);
+        }).detach();
+    }
 
     return true;
 }
