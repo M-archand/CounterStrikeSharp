@@ -37,6 +37,7 @@ class CGameSystem : public CBaseGameSystem
         CSSHARP_CORE_INFO("CGameSystem::Shutdown");
         sm_bShutdown = true;
         delete sm_Factory;
+        sm_Factory = nullptr;
     }
 
     void SetGameSystemGlobalPtrs(void* pValue) override
@@ -46,23 +47,8 @@ class CGameSystem : public CBaseGameSystem
 
     bool DoesGameSystemReallocate() override { return sm_Factory->ShouldAutoAdd(); }
 
-    static IGameSystemFactory* sm_Factory;
+    static CGameSystemStaticFactory<CGameSystem>* sm_Factory;
     static inline bool sm_bShutdown = false;
-};
-
-class IEntityResourceManifest
-{
-  public:
-    virtual void AddResource(const char*) = 0;
-    virtual void AddResource(const char*, void*) = 0;
-    virtual void AddResource(const char*, void*, void*, void*) = 0;
-    virtual void unk_04() = 0;
-    virtual void unk_05() = 0;
-    virtual void unk_06() = 0;
-    virtual void unk_07() = 0;
-    virtual void unk_08() = 0;
-    virtual void unk_09() = 0;
-    virtual void unk_10() = 0;
 };
 
 extern IEntityResourceManifest* m_exportResourceManifest;

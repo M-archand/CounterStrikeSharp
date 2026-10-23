@@ -21,12 +21,13 @@
 
 #include "interfaces/cs2_interfaces.h"
 #include "core/globals.h"
+#include "core/gameconfig.h"
 #include "core/memory.h"
 #include "core/log.h"
 
-#include "tier1/utlmap.h"
+#include "tier0/utlmap.h"
 #include <thread>
-#include <schemasystem.h>
+#include <schemasystem/schemasystem.h>
 #include <entity2/entitysystem.h>
 #include <entity2/entityclass.h>
 #include <networksystem/inetworkserializer.h>
@@ -70,7 +71,7 @@ static CNetworkSerializerClassInfo* FindNetworkSerializerClassInfo(CNetworkSeria
 static bool IsFieldNetworked(CNetworkSerializerClassInfo* pNetworkClassInfo, SchemaClassFieldData_t& field)
 {
     if (!pNetworkClassInfo) return false;
-    return pNetworkClassInfo->FindField(field.m_pszName) != nullptr;
+    return pNetworkClassInfo->FindField(field.m_pName) != nullptr;
 }
 
 static void ResolveNetworkedFlags()
@@ -89,12 +90,12 @@ static void ResolveNetworkedFlags()
         if (!g_schemaTableMap.IsValidIndex(tableMapIndex)) continue;
 
         SchemaKeyValueMap_t* keyValueMap = g_schemaTableMap[tableMapIndex];
-        CNetworkSerializerClassInfo* pNetworkClassInfo = FindNetworkSerializerClassInfo(pDatabase, pending.pClassInfo->m_pszName);
+        CNetworkSerializerClassInfo* pNetworkClassInfo = FindNetworkSerializerClassInfo(pDatabase, pending.pClassInfo->m_pName);
 
-        for (int i = 0; i < pending.pClassInfo->m_nFieldCount; ++i)
+        for (int i = 0; i < pending.pClassInfo->m_nNumFields; ++i)
         {
             SchemaClassFieldData_t& field = pending.pClassInfo->m_pFields[i];
-            auto memberIndex = keyValueMap->Find(hash_32_fnv1a_const(field.m_pszName));
+            auto memberIndex = keyValueMap->Find(hash_32_fnv1a_const(field.m_pName));
             if (keyValueMap->IsValidIndex(memberIndex))
                 keyValueMap->Element(memberIndex).networked = IsFieldNetworked(pNetworkClassInfo, field);
         }
@@ -120,7 +121,7 @@ static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap, const char* cla
         return false;
     }
 
-    short fieldsSize = pClassInfo->m_nFieldCount;
+    const auto fieldsSize = pClassInfo->m_nNumFields;
     SchemaClassFieldData_t* pFields = pClassInfo->m_pFields;
 
     CNetworkSerializerCodeGenDatabase* pDatabase = GetNetworkSerializerDatabase();
@@ -142,11 +143,11 @@ static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap, const char* cla
         SchemaClassFieldData_t& field = pFields[i];
 
         if (field.m_pType->m_eTypeCategory == SCHEMA_TYPE_ATOMIC && field.m_pType->m_eAtomicCategory == SCHEMA_ATOMIC_COLLECTION_OF_T)
-            keyValueMap->Insert(hash_32_fnv1a_const(field.m_pszName),
+            keyValueMap->Insert(hash_32_fnv1a_const(field.m_pName),
                                 { field.m_nSingleInheritanceOffset, IsFieldNetworked(pNetworkClassInfo, field),
                                   static_cast<CSchemaType_Atomic_CollectionOfT*>(field.m_pType)->m_pfnManipulator });
         else
-            keyValueMap->Insert(hash_32_fnv1a_const(field.m_pszName),
+            keyValueMap->Insert(hash_32_fnv1a_const(field.m_pName),
                                 { field.m_nSingleInheritanceOffset, IsFieldNetworked(pNetworkClassInfo, field) });
     }
 
@@ -164,12 +165,12 @@ int16_t schema::FindChainOffset(const char* className)
     do
     {
         SchemaClassFieldData_t* pFields = pClassInfo->m_pFields;
-        short fieldsSize = pClassInfo->m_nFieldCount;
+        const auto fieldsSize = pClassInfo->m_nNumFields;
         for (int i = 0; i < fieldsSize; ++i)
         {
             SchemaClassFieldData_t& field = pFields[i];
 
-            if (V_strcmp(field.m_pszName, "__m_pChainEntity") == 0)
+            if (V_strcmp(field.m_pName, "__m_pChainEntity") == 0)
             {
                 return field.m_nSingleInheritanceOffset;
             }
