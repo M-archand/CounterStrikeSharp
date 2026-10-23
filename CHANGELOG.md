@@ -1,3 +1,11 @@
+## What's Changed in v1.0.380
+* fix: apply remaining parts of upstream Game Update 1.41.9.2 ([81de3df](https://github.com/M-archand/CounterStrikeSharp/commit/81de3dfa3f1a962bb871b6f6fd3df4e9758e9c85))
+* chore: Update Schema Definitions to 1.41.9.2 by [@roflmuffin](https://github.com/roflmuffin) ([6df79b6](https://github.com/M-archand/CounterStrikeSharp/commit/6df79b6e86d34a22eb364aadfd162ec1e55048ca))
+* fix(sdk): migrate hl2sdk-cs2 to alliedmodders/s2sdk for CS2 1.41.9.2 ([1ab41e4](https://github.com/M-archand/CounterStrikeSharp/commit/1ab41e481a2e70b252bce10dd985015b385f5663))
+* fix(sdk): bump hl2sdk-cs2 for IVEngineServer2 vtable shift ([6bccc25](https://github.com/M-archand/CounterStrikeSharp/commit/6bccc25be7114377f2563bfffab9febd768d0d57))
+* chore(deps): bump libraries/Protobufs from 2d1c5e5 to 5c2b73b2 ([55e04c0](https://github.com/M-archand/CounterStrikeSharp/commit/55e04c0507e5b299ee37d0c3a2d4e1b4b4ad9eb2))
+* fix: update linux sigs ([c9cf254](https://github.com/M-archand/CounterStrikeSharp/commit/c9cf2544561d2d2aa9cef1feff3f237c5c4ec5b9))
+
 ## What's Changed in v1.0.379
 * fix: stop shutdown hangs on Metamod 1474 & 1476 ([bc7141f](https://github.com/M-archand/CounterStrikeSharp/commit/bc7141f143f94c6b5aa18ffe25a1c12976b4b5d6))
 
