@@ -118,6 +118,10 @@ public partial class CCSWeaponBase : CBasePlayerWeapon
 	[SchemaMember("CCSWeaponBase", "m_nDeployTick")]
 	public ref Int32 DeployTick => ref Schema.GetRef<Int32>(this.Handle, "CCSWeaponBase", "m_nDeployTick");
 
+	// m_flAttackHoldStartTime
+	[SchemaMember("CCSWeaponBase", "m_flAttackHoldStartTime")]
+	public ref float AttackHoldStartTime => ref Schema.GetRef<float>(this.Handle, "CCSWeaponBase", "m_flAttackHoldStartTime");
+
 	// m_flDroppedAtTime
 	[SchemaMember("CCSWeaponBase", "m_flDroppedAtTime")]
 	public ref float DroppedAtTime => ref Schema.GetRef<float>(this.Handle, "CCSWeaponBase", "m_flDroppedAtTime");
