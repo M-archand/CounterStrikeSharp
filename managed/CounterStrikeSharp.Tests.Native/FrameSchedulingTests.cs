@@ -184,6 +184,20 @@ public class FrameSchedulingTests
     }
 
     [Fact]
+    public async Task QueueTaskForFrame_PassesZeroedContext()
+    {
+        var tcs = new TaskCompletionSource<(int Arg0, IntPtr Arg1)>();
+        Action<ScriptContext> callback = ctx => tcs.SetResult((ctx.GetArgument<int>(0), ctx.GetArgument<IntPtr>(1)));
+        var reference = FunctionReference.Create(callback, FunctionLifetime.SingleUse);
+
+        NativeAPI.QueueTaskForFrame(Server.TickCount + 2, reference);
+
+        var (arg0, arg1) = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(2));
+        Assert.Equal(0, arg0);
+        Assert.Equal(IntPtr.Zero, arg1);
+    }
+
+    [Fact]
     public async Task NextWorldUpdate_HighLevelApi_ExecutesCallback()
     {
         bool called = false;

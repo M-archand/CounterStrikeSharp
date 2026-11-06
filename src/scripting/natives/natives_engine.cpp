@@ -106,10 +106,13 @@ double GetTickedTime(ScriptContext& script_context) { return globals::timerSyste
 void QueueTaskForFrame(ScriptContext& script_context)
 {
     auto tick = script_context.GetArgument<int>(0);
-    auto func = script_context.GetArgument<void*>(1);
+    auto func = script_context.GetArgument<CallbackT>(1);
 
-    typedef void(voidfunc)(void);
-    globals::tickScheduler.schedule(tick, reinterpret_cast<voidfunc*>(func));
+    // The callback expects a context pointer, so give it an empty one.
+    globals::tickScheduler.schedule(tick, [func]() {
+        fxNativeContext context{};
+        func(&context);
+    });
 }
 
 enum InterfaceType
