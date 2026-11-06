@@ -9,5 +9,10 @@ updates:
       - dependency-name: "libraries/Protobufs"
     schedule:
       interval: "daily"
+    # Exempt submodules from cooldown
+    cooldown:
+      default-days: 1
+      exclude:
+        - "*"
     commit-message:
       prefix: "chore(deps)"
