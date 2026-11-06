@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <thread>
 
+#include "convar.h"
 #include "core/detours.h"
 #include "core/coreconfig.h"
 #include "core/game_system.h"
@@ -77,11 +78,6 @@ PLUGIN_EXPOSE(CounterStrikeSharpMMPlugin, counterstrikesharp::gPlugin);
 namespace counterstrikesharp {
 
 CounterStrikeSharpMMPlugin gPlugin;
-
-#if 0
-// Currently unavailable, requires hl2sdk work!
-ConVar sample_cvar("sample_cvar", "42", 0);
-#endif
 
 bool CounterStrikeSharpMMPlugin::Load(PluginId id, ISmmAPI* ismm, char* error, size_t maxlen, bool late)
 {
