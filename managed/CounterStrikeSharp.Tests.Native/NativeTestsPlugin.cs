@@ -49,6 +49,8 @@ namespace NativeTestsPlugin
         {
             gameThreadId = Thread.CurrentThread.ManagedThreadId;
             Instance = this;
+            SchemaTests.CacheOffsetsOnLoad();
+            EntitySystemTests.LookUpEntitiesOnLoad();
             // Loading blocks the game thread, so we use NextFrame to run our tests asynchronously.
             // Uncomment to run the tests on load
             // Server.NextWorldUpdate(() => RunTests());
