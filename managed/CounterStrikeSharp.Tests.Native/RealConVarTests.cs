@@ -406,7 +406,7 @@ public class RealConVarTests : IDisposable
     {
         var conVar = Create(42, 0, 100);
         Server.ExecuteCommand($"{conVar.Name} 73");
-        await WaitOneFrame();
+        await WaitUntilAsync(() => conVar.Value == 73, "the server console to apply the new value");
         Assert.Equal(73, conVar.Value);
         Assert.Equal("73", conVar.ValueAsString);
     }
