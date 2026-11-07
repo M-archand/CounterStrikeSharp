@@ -76,6 +76,7 @@ class TimerSystem : public GlobalClass
     double CalculateNextThink(double last_think_time, float interval);
     void RunFrame();
     void RemoveMapChangeTimers();
+    void SweepKilledTimers();
     timers::Timer* CreateTimer(float interval, CallbackT callback, int flags);
     void KillTimer(timers::Timer* timer);
     double GetTickedTime();

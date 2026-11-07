@@ -127,46 +127,57 @@ double TimerSystem::CalculateNextThink(double last_think_time, float interval)
 
 void TimerSystem::RunFrame()
 {
-    for (int i = m_once_off_timers.size() - 1; i >= 0; i--)
+    // Execute phase never erases: KillTimer only flags, SweepKilledTimers deletes afterwards.
+    // Sizes are captured so timers created inside a callback fire next frame, as before.
+    const size_t once_off_count = m_once_off_timers.size();
+    for (size_t i = once_off_count; i-- > 0;)
     {
         auto timer = m_once_off_timers[i];
-        if (timers::universal_time >= timer->m_exec_time)
-        {
-            timer->m_in_exec = true;
-            timer->m_callback->ScriptContext().Reset();
-            timer->m_callback->Execute();
+        if (timer->m_kill_me || timers::universal_time < timer->m_exec_time) continue;
 
-            m_once_off_timers.erase(m_once_off_timers.begin() + i);
-            delete timer;
-        }
+        timer->m_in_exec = true;
+        timer->m_callback->ScriptContext().Reset();
+        timer->m_callback->Execute();
+        timer->m_in_exec = false;
+        timer->m_kill_me = true;
     }
 
-    for (int i = m_repeat_timers.size() - 1; i >= 0; i--)
+    const size_t repeat_count = m_repeat_timers.size();
+    for (size_t i = repeat_count; i-- > 0;)
     {
         auto timer = m_repeat_timers[i];
-        if (timers::universal_time >= timer->m_exec_time)
+        if (timer->m_kill_me || timers::universal_time < timer->m_exec_time) continue;
+
+        timer->m_in_exec = true;
+        timer->m_callback->ScriptContext().Reset();
+        timer->m_callback->Execute();
+        timer->m_in_exec = false;
+
+        if (!timer->m_kill_me)
         {
-            timer->m_in_exec = true;
-            timer->m_callback->ScriptContext().Reset();
-            timer->m_callback->Execute();
-
-            if (timer->m_kill_me)
-            {
-                m_repeat_timers.erase(m_repeat_timers.begin() + i);
-                delete timer;
-                continue;
-            }
-
-            timer->m_in_exec = false;
             timer->m_exec_time = CalculateNextThink(timer->m_exec_time, timer->m_interval);
         }
     }
+
+    SweepKilledTimers();
+}
+
+void TimerSystem::SweepKilledTimers()
+{
+    auto isKilled = [](timers::Timer* timer) {
+        if (!timer->m_kill_me) return false;
+        delete timer;
+        return true;
+    };
+
+    std::erase_if(m_once_off_timers, isKilled);
+    std::erase_if(m_repeat_timers, isKilled);
 }
 
 void TimerSystem::RemoveMapChangeTimers()
 {
     auto isMapChangeTimer = [](timers::Timer* timer) {
-        bool shouldRemove = timer->m_flags & TIMER_FLAG_NO_MAPCHANGE;
+        bool shouldRemove = timer->m_kill_me || (timer->m_flags & TIMER_FLAG_NO_MAPCHANGE);
         if (shouldRemove)
         {
             delete timer;
@@ -204,35 +215,8 @@ void TimerSystem::KillTimer(timers::Timer* timer)
         return;
     }
 
-    if (timer->m_kill_me) return;
-
-    // If were executing, make sure it doesn't run again next time.
-    if (timer->m_in_exec)
-    {
-        timer->m_kill_me = true;
-        return;
-    }
-
-    if (timer->m_flags & TIMER_FLAG_REPEAT)
-    {
-        auto it = std::remove_if(m_repeat_timers.begin(), m_repeat_timers.end(), [timer](timers::Timer* i) {
-            return timer == i;
-        });
-
-        bool success;
-        if ((success = it != m_repeat_timers.end())) m_repeat_timers.erase(it, m_repeat_timers.end());
-        delete timer;
-    }
-    else
-    {
-        auto it = std::remove_if(m_once_off_timers.begin(), m_once_off_timers.end(), [timer](timers::Timer* i) {
-            return timer == i;
-        });
-
-        bool success;
-        if ((success = it != m_once_off_timers.end())) m_once_off_timers.erase(it, m_once_off_timers.end());
-        delete timer;
-    }
+    // Deferred so a kill issued from inside another timer's callback never shifts the list RunFrame walks.
+    timer->m_kill_me = true;
 }
 
 double TimerSystem::GetTickedTime() { return timers::universal_time; }
