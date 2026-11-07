@@ -1,3 +1,23 @@
+## What's Changed in v1.0.381
+* fix(timers): defer timer deletion to an end-of-frame sweep ([48eb6f5](https://github.com/M-archand/CounterStrikeSharp/commit/48eb6f56ea4c453af57d3009c5dfc9a682a40778))
+* test: poll for convar changes instead of waiting one frame ([5b21cd7](https://github.com/M-archand/CounterStrikeSharp/commit/5b21cd77f56b4341a49e1a2641052d46965f7224))
+* fix: pass zeroed fxNativeContext to QueueTaskForFrame callbacks ([421392a](https://github.com/M-archand/CounterStrikeSharp/commit/421392a11e1bd9270eed074307557d7cd9c74822))
+* feat: cache the game rules entity behind Utilities.GetGameRules by [@makadore](https://github.com/makadore) ([934c5c0](https://github.com/M-archand/CounterStrikeSharp/commit/934c5c05a3c64930478db267a920945f4b19feeb))
+* fix: key memory function caches by argument and return types by [@adammyllykoski](https://github.com/adammyllykoski) ([f5a8c53](https://github.com/M-archand/CounterStrikeSharp/commit/f5a8c536c93acbb144d1499cac5e1d2cb546eae9))
+* chore: Update Schema Definitions to 1.41.9.3 by [@roflmuffin](https://github.com/roflmuffin) ([5d7063c](https://github.com/M-archand/CounterStrikeSharp/commit/5d7063c6735ec34125d83e0b91134472b29950c4))
+* fix: do not persist failed entity list lookup by [@makadore](https://github.com/makadore) ([40989ae](https://github.com/M-archand/CounterStrikeSharp/commit/40989aeb87ab0acb5a8b6bc1a26487a63b82d998))
+* chore: update game events after 1.41.9.2 by [@roflmuffin](https://github.com/roflmuffin) ([cd6496b](https://github.com/M-archand/CounterStrikeSharp/commit/cd6496b13e6331c7b28e4ec6f87c3beac1648568))
+* chore: fix line endings in schema generator by [@roflmuffin](https://github.com/roflmuffin) ([bee1a4c](https://github.com/M-archand/CounterStrikeSharp/commit/bee1a4c362c0842fee15b7e3e36b5a08a7b101c3))
+* feat: add Convar<T> for real convar creation/deletion/access by [@roflmuffin](https://github.com/roflmuffin) ([87afb34](https://github.com/M-archand/CounterStrikeSharp/commit/87afb349e39c049e0865b126c3301a2763455f40))
+* chore(deps): exempt submodules from dependabot cooldown ([8bfdf2a](https://github.com/M-archand/CounterStrikeSharp/commit/8bfdf2a66d90962418dedae3456dbde128b679a0))
+* chore(deps): bump libraries/Protobufs from `c0c1e745` to `f3e90b81` ([ed6078f](https://github.com/M-archand/CounterStrikeSharp/commit/ed6078fc92f627dbf3e68d9a4c834039ad30e7bc))
+* chore(deps): bump libraries/Protobufs from `6c35e1a` to `c0c1e74` in [#28](https://github.com/M-archand/CounterStrikeSharp/pull/28) ([67845fa](https://github.com/M-archand/CounterStrikeSharp/commit/67845fa2c669516fb392a49ce289e06ba4b16778))
+* chore(deps): bump libraries/Protobufs from `6c35e1a` to `c0c1e74` by [@dependabot[bot]](https://github.com/dependabot[bot]) ([3949a10](https://github.com/M-archand/CounterStrikeSharp/commit/3949a1042965b07f9d4d43554dfee79fc2d9c8e3))
+
+## New Contributors
+* [@makadore](https://github.com/makadore) made their first contribution
+* [@adammyllykoski](https://github.com/adammyllykoski) made their first contribution
+
 ## What's Changed in v1.0.380
 * fix: apply remaining parts of upstream Game Update 1.41.9.2 ([81de3df](https://github.com/M-archand/CounterStrikeSharp/commit/81de3dfa3f1a962bb871b6f6fd3df4e9758e9c85))
 * chore: Update Schema Definitions to 1.41.9.2 by [@roflmuffin](https://github.com/roflmuffin) ([6df79b6](https://github.com/M-archand/CounterStrikeSharp/commit/6df79b6e86d34a22eb364aadfd162ec1e55048ca))
