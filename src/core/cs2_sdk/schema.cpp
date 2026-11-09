@@ -189,14 +189,15 @@ SchemaKey schema::GetOffset(const char* className, uint32_t classKey, const char
     {
         if (InitSchemaFieldsForClass(&g_schemaTableMap, className, classKey)) return GetOffset(className, classKey, memberName, memberKey);
 
-        return { 0, 0 };
+        return { -1, false };
     }
 
     SchemaKeyValueMap_t* tableMap = g_schemaTableMap[tableMapIndex];
     auto memberIndex = tableMap->Find(memberKey);
     if (!tableMap->IsValidIndex(memberIndex))
     {
-        return { 0, 0 };
+        Warning("schema::GetOffset(): '%s::%s' was not found!\n", className, memberName);
+        return { -1, false };
     }
 
     return tableMap->Element(memberIndex);

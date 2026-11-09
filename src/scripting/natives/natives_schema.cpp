@@ -29,14 +29,23 @@
 
 namespace counterstrikesharp {
 
+// Resolves a schema field; raises a native error instead of handing back a bogus offset.
+static bool ResolveSchemaKey(ScriptContext& script_context, const char* className, const char* memberName, SchemaKey& key)
+{
+    key = schema::GetOffset(className, hash_32_fnv1a_const(className), memberName, hash_32_fnv1a_const(memberName));
+    if (key.offset >= 0) return true;
+
+    script_context.ThrowNativeError("Unknown schema field %s::%s", className, memberName);
+    return false;
+}
+
 int16 GetSchemaOffset(ScriptContext& script_context)
 {
     auto className = script_context.GetArgument<const char*>(0);
     auto memberName = script_context.GetArgument<const char*>(1);
-    auto classKey = hash_32_fnv1a_const(className);
-    auto memberKey = hash_32_fnv1a_const(memberName);
 
-    const auto m_key = schema::GetOffset(className, classKey, memberName, memberKey);
+    SchemaKey m_key;
+    if (!ResolveSchemaKey(script_context, className, memberName, m_key)) return -1;
 
     return m_key.offset;
 }
@@ -45,10 +54,9 @@ bool IsSchemaFieldNetworked(ScriptContext& script_context)
 {
     auto className = script_context.GetArgument<const char*>(0);
     auto memberName = script_context.GetArgument<const char*>(1);
-    auto classKey = hash_32_fnv1a_const(className);
-    auto memberKey = hash_32_fnv1a_const(memberName);
 
-    const auto m_key = schema::GetOffset(className, classKey, memberName, memberKey);
+    SchemaKey m_key;
+    if (!ResolveSchemaKey(script_context, className, memberName, m_key)) return false;
 
     return m_key.networked;
 }
@@ -71,10 +79,9 @@ void GetSchemaValueByName(ScriptContext& script_context)
     auto returnType = script_context.GetArgument<DataType_t>(1);
     auto className = script_context.GetArgument<const char*>(2);
     auto memberName = script_context.GetArgument<const char*>(3);
-    auto classKey = hash_32_fnv1a_const(className);
-    auto memberKey = hash_32_fnv1a_const(memberName);
 
-    const auto m_key = schema::GetOffset(className, classKey, memberName, memberKey);
+    SchemaKey m_key;
+    if (!ResolveSchemaKey(script_context, className, memberName, m_key)) return;
 
     switch (returnType)
     {
@@ -110,10 +117,8 @@ void SetSchemaValueByName(ScriptContext& script_context)
         return;
     }
 
-    auto classKey = hash_32_fnv1a_const(className);
-    auto memberKey = hash_32_fnv1a_const(memberName);
-
-    const auto m_key = schema::GetOffset(className, classKey, memberName, memberKey);
+    SchemaKey m_key;
+    if (!ResolveSchemaKey(script_context, className, memberName, m_key)) return;
 
     switch (dataType)
     {

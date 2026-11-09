@@ -70,6 +70,36 @@ public class SchemaTests
         Assert.Equal(offset1, offset2);
     }
 
+    [Theory]
+    [InlineData("CBaseEntity", "m_iDoesNotExist")]
+    [InlineData("CDoesNotExist", "m_iHealth")]
+    public void GetSchemaOffset_UnknownField_ThrowsInsteadOfZero(string className, string fieldName)
+    {
+        Assert.Throws<NativeException>(() => NativeAPI.GetSchemaOffset(className, fieldName));
+        Assert.Throws<NativeException>(() => NativeAPI.IsSchemaFieldNetworked(className, fieldName));
+        // Failure must not be cached: the second lookup has to fail the same way.
+        Assert.Throws<NativeException>(() => Schema.GetSchemaOffset(className, fieldName));
+        Assert.Throws<NativeException>(() => Schema.GetSchemaOffset(className, fieldName));
+    }
+
+    [Fact]
+    public void GetSetSchemaValue_UnknownField_ThrowsWithoutTouchingMemory()
+    {
+        var entity = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
+        Assert.NotNull(entity);
+
+        try
+        {
+            Assert.Throws<NativeException>(() => Schema.GetSchemaValue<int>(entity.Handle, "CBaseEntity", "m_iDoesNotExist"));
+            Assert.Throws<NativeException>(() => Schema.SetSchemaValue(entity.Handle, "CBaseEntity", "m_iDoesNotExist", 1));
+            Assert.True(entity.IsValid); // vtable pointer at offset 0 stayed intact
+        }
+        finally
+        {
+            entity.Remove();
+        }
+    }
+
     [Fact]
     public void GetSchemaClassSize_ReturnsCorrectSize()
     {

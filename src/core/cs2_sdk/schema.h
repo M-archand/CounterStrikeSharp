@@ -34,7 +34,7 @@
 
 struct SchemaKey
 {
-    int32_t offset;
+    int32_t offset; // -1 when the class or field does not exist
     bool networked;
     SchemaCollectionManipulatorFn_t manipulator = nullptr;
 };
