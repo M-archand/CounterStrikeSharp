@@ -133,6 +133,7 @@ struct DynamicHook::State
     std::vector<DataType_t> types;
     DataType_t returnType;
     Handler handler;
+    std::string returnString; // SetReturn<string> storage, valid until the next SetReturn on this hook
     KHook::HookID_t id = KHook::INVALID_HOOK;
     std::array<Callback, 4> callbacks;
     std::atomic<bool> enabled{ true };
@@ -176,7 +177,7 @@ struct DynamicHook::State
             KHook::DestroyReturnValue();
             return Signature(state.returnType);
         }
-        DynamicHookContext frame(state.types, state.returnType);
+        DynamicHookContext frame(state.types, state.returnType, state.returnString);
         for (size_t i = 0; i < state.types.size(); ++i)
         {
             switch (state.types[i])

@@ -3,9 +3,11 @@
 #include <khook.hpp>
 #include <dyncall/dyncall/dyncall_value.h>
 #include <cstring>
+#include <deque>
 #include <functional>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace counterstrikesharp {
@@ -59,21 +61,21 @@ enum DataType_t
 class DynamicHookContext
 {
   public:
-    DynamicHookContext(const std::vector<DataType_t>& types, DataType_t returnType)
-        : types(types), returnType(returnType), arguments(types.size())
+    DynamicHookContext(const std::vector<DataType_t>& types, DataType_t returnType, std::string& returnString)
+        : types(types), returnType(returnType), arguments(types.size()), returnString(returnString)
     {
     }
 
     template <class T> T getArgument(int index) const { return Read<T>(arguments.at(index)); }
     template <class T> void setArgument(int index, T value)
     {
-        Store(arguments.at(index), types.at(index), value);
+        Store(arguments.at(index), types.at(index), Own(value, ownedStrings));
         argumentsChanged = true;
     }
     template <class T> T getReturnValue() const { return Read<T>(result); }
     template <class T> void setReturnValue(T value)
     {
-        Store(result, returnType, value);
+        Store(result, returnType, Own(value, returnString));
         returnChanged = true;
     }
 
@@ -85,6 +87,23 @@ class DynamicHookContext
     bool returnChanged = false;
 
   private:
+    // Managed strings are freed as soon as the native call returns, so copy them: arguments live
+    // as long as this frame, the return string as long as the hook (until the next SetReturn).
+    std::deque<std::string> ownedStrings;
+    std::string& returnString;
+
+    template <class T, class Storage> static T Own(T value, Storage&) { return value; }
+    static const char* Own(const char* value, std::deque<std::string>& storage)
+    {
+        return value ? storage.emplace_back(value).c_str() : nullptr;
+    }
+    static const char* Own(const char* value, std::string& storage)
+    {
+        if (!value) return nullptr;
+        storage = value;
+        return storage.c_str();
+    }
+
     template <class T> static T Read(const DCValue& value)
     {
         static_assert(sizeof(T) <= sizeof(DCValue));
