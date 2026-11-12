@@ -82,6 +82,36 @@ public class SchemaTests
         Assert.Throws<NativeException>(() => Schema.GetSchemaOffset(className, fieldName));
     }
 
+    // Regression: SetStateChanged probes __m_pChainEntity, which only component classes declare.
+    [Fact]
+    public void SetStateChanged_ClassWithoutChainEntity_DoesNotThrow()
+    {
+        Assert.Throws<NativeException>(() => Schema.GetSchemaOffset("CBaseEntity", "__m_pChainEntity"));
+
+        var entity = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
+        Assert.NotNull(entity);
+
+        try
+        {
+            entity.DispatchSpawn();
+            entity.Health = 50;
+            Utilities.SetStateChanged(entity, "CBaseEntity", "m_iHealth");
+            // Second call reads the cached chain lookup instead of probing again.
+            Utilities.SetStateChanged(entity, "CBaseEntity", "m_iHealth");
+            Assert.True(entity.IsValid);
+        }
+        finally
+        {
+            entity.Remove();
+        }
+    }
+
+    [Fact]
+    public void GetSchemaOffset_ComponentClass_DeclaresChainEntity()
+    {
+        Assert.True(Schema.GetSchemaOffset("CBodyComponent", "__m_pChainEntity") > 0);
+    }
+
     [Fact]
     public void GetSetSchemaValue_UnknownField_ThrowsWithoutTouchingMemory()
     {

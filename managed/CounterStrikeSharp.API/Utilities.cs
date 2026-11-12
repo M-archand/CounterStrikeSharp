@@ -14,6 +14,7 @@
  *  along with CounterStrikeSharp.  If not, see <https://www.gnu.org/licenses/>. *
  */
 
+using System.Collections.Concurrent;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Runtime.CompilerServices;
@@ -247,7 +248,21 @@ namespace CounterStrikeSharp.API
             return FastNew.CreateInstance<T, IntPtr>(pointerTo);
         }
 
-        private static int FindSchemaChain(string className) => Schema.GetSchemaOffset(className, "__m_pChainEntity");
+        private static readonly ConcurrentDictionary<string, int> _chainOffsets = new();
+
+        // Only component classes declare __m_pChainEntity; the unknown-field NativeException means "no chain" for the rest.
+        private static int FindSchemaChain(string className) =>
+            _chainOffsets.GetOrAdd(className, static name =>
+            {
+                try
+                {
+                    return Schema.GetSchemaOffset(name, "__m_pChainEntity");
+                }
+                catch (NativeException)
+                {
+                    return 0;
+                }
+            });
 
         /// <summary>
         /// Marks a field as changed for network transmission.
