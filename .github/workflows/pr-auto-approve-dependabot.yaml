@@ -1,4 +1,4 @@
-name: Dependabot Auto-Merge hl2sdk
+name: Dependabot Auto-Merge s2sdk
 
 on: pull_request
 
@@ -17,8 +17,8 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Approve and auto-merge hl2sdk updates
-        if: contains(steps.metadata.outputs.dependency-names, 'libraries/hl2sdk-cs2')
+      - name: Approve and auto-merge s2sdk updates
+        if: contains(steps.metadata.outputs.dependency-names, 'libraries/s2sdk-cs2')
         run: |
           gh pr review --approve "$PR_URL"
           gh pr merge --auto --squash "$PR_URL"

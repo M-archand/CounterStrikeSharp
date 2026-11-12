@@ -16,14 +16,14 @@ add_subdirectory(libraries/dyncall)
 include("makefiles/protobuf.cmake")
 
 set(SOURCE_FILES
-    libraries/hl2sdk-cs2/public/tier0/memoverride.cpp
-    libraries/hl2sdk-cs2/tier0_perproject/convar.cpp
-    libraries/hl2sdk-cs2/tier0_perproject/keyvalues3.cpp
+    libraries/s2sdk-cs2/public/tier0/memoverride.cpp
+    libraries/s2sdk-cs2/tier0_perproject/convar.cpp
+    libraries/s2sdk-cs2/tier0_perproject/keyvalues3.cpp
     src/mm_plugin.cpp
     src/mm_plugin.h
-    libraries/hl2sdk-cs2/entity2/entityidentity.cpp
-    libraries/hl2sdk-cs2/entity2/entitysystem.cpp
-    libraries/hl2sdk-cs2/entity2/entitykeyvalues.cpp
+    libraries/s2sdk-cs2/entity2/entityidentity.cpp
+    libraries/s2sdk-cs2/entity2/entitysystem.cpp
+    libraries/s2sdk-cs2/entity2/entitykeyvalues.cpp
     libraries/dotnet/hostfxr.h
     libraries/dotnet/coreclr_delegates.h
     src/scripting/dotnet_host.h

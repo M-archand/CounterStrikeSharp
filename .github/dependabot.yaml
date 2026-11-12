@@ -1,10 +1,10 @@
 version: 2
 updates:
-  # Update the submodule in libraries/hl2sdk-cs2 every day
+  # Update the submodule in libraries/s2sdk-cs2 every day
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     allow:
-      - dependency-name: "libraries/hl2sdk-cs2"
+      - dependency-name: "libraries/s2sdk-cs2"
       - dependency-name: "libraries/metamod-source"
       - dependency-name: "libraries/Protobufs"
     schedule:
