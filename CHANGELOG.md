@@ -1,3 +1,18 @@
+## What's Changed in v1.0.382
+* fix(sigs): IsValidNavMesh (windows) ([a789fda](https://github.com/M-archand/CounterStrikeSharp/commit/a789fda0826377073643a3b40755a53d0330abc8))
+* fix(sigs): ClientPrint (linux) ([579f034](https://github.com/M-archand/CounterStrikeSharp/commit/579f034be1f9ae310057fd8e1cccac9a180da619))
+* test(timers): add upstream kill-from-callback regression tests (upstream 19db7bbd) by [@makadore](https://github.com/makadore) ([d722504](https://github.com/M-archand/CounterStrikeSharp/commit/d722504fb0f4f24de83749300c6009c4f4fe04f5))
+* fix: format a native error message once, with a bound by [@makadore](https://github.com/makadore) ([776ea03](https://github.com/M-archand/CounterStrikeSharp/commit/776ea030b5377a5278f2614b12e0819fd550795b))
+* chore(deps): bump metamod from `170058a2` to `ea513d89` (1490) ([876eb71](https://github.com/M-archand/CounterStrikeSharp/commit/876eb717400c7aa063337d38227bd498453f761a))
+* chore(deps): pin s2sdk to 2283c1f9 and drop INetworkMessageInternal ([bc909c1](https://github.com/M-archand/CounterStrikeSharp/commit/bc909c1a8a425deca8368ea5ba6625950e944b9d))
+* fix(schema): add GET_SCHEMA_CHAIN_OFFSET native for the SetStateChanged chain probe ([e12f3b2](https://github.com/M-archand/CounterStrikeSharp/commit/e12f3b285319312f5abd760cc56207181121f3b8))
+* fix: build and user messages on CS2 14197 ([9e0075d](https://github.com/M-archand/CounterStrikeSharp/commit/9e0075df3fd384a4122b5c42a241a9de536a5a50))
+* chore(deps): rename hl2sdk-cs2 submodule to s2sdk-cs2 ([7eef395](https://github.com/M-archand/CounterStrikeSharp/commit/7eef39559e6b3e04197c0d4192578f40cdffaec2))
+* chore(deps): bump libraries/Protobufs from `f3e90b81` to `01c423cd` ([5b4108f](https://github.com/M-archand/CounterStrikeSharp/commit/5b4108f99a00ba7e0ebba39a8bdc16b00a6d9191))
+* fix(schema): treat missing __m_pChainEntity as "no chain" in SetStateChanged ([603be75](https://github.com/M-archand/CounterStrikeSharp/commit/603be7563bfa3d90ed7314b3fbb745273f2cdc38))
+* fix(hooks): copy managed strings passed to DynamicHook SetParam/SetReturn ([2e1cc93](https://github.com/M-archand/CounterStrikeSharp/commit/2e1cc93c0b4bc06598a30804a8ddf0093e612fcb))
+* fix(schema): throw NativeException for unknown schema fields instead of returning offset 0 ([00ee376](https://github.com/M-archand/CounterStrikeSharp/commit/00ee3763f048ad7bb1d9de3e45be3d7f3b1569e7))
+
 ## What's Changed in v1.0.381
 * fix(timers): defer timer deletion to an end-of-frame sweep ([48eb6f5](https://github.com/M-archand/CounterStrikeSharp/commit/48eb6f56ea4c453af57d3009c5dfc9a682a40778))
 * test: poll for convar changes instead of waiting one frame ([5b21cd7](https://github.com/M-archand/CounterStrikeSharp/commit/5b21cd77f56b4341a49e1a2641052d46965f7224))
