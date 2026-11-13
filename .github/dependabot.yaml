@@ -6,7 +6,7 @@ updates:
     allow:
       - dependency-name: "libraries/s2sdk-cs2"
       - dependency-name: "libraries/metamod-source"
-      - dependency-name: "libraries/Protobufs"
+      - dependency-name: "libraries/Protobufs" # bumps outside csgo/ or steam/ auto-closed by pr-close-irrelevant-protobufs.yaml
     schedule:
       interval: "daily"
     # Exempt submodules from cooldown

@@ -1,0 +1,40 @@
+name: Dependabot Protobufs Filter
+
+on: pull_request
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  close-irrelevant-protobufs-bump:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Close PR unless the Protobufs bump touches csgo/ or steam/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          UPSTREAM: SteamDatabase/Protobufs
+          SUBMODULE: libraries/Protobufs
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pinned() { gh api "repos/$REPO/contents/$SUBMODULE?ref=$1" --jq .sha; }
+          old=$(pinned "$BASE_SHA")
+          new=$(pinned "$HEAD_SHA")
+          if [ "$old" = "$new" ]; then
+            echo "PR does not bump $SUBMODULE; nothing to do"
+            exit 0
+          fi
+          echo "Comparing $UPSTREAM $old...$new"
+          # Changed file paths plus upstream commit titles ("N files | a.proto, b.proto")
+          changes=$(gh api --paginate "repos/$UPSTREAM/compare/$old...$new" \
+            --jq '.files[].filename, .commits[].commit.message')
+          echo "$changes"
+          if grep -Eq '(^|[^[:alnum:]_/])(csgo|steam)/' <<< "$changes"; then
+            echo "Bump touches csgo/ or steam/; keeping PR open"
+            exit 0
+          fi
+          gh pr close "$PR_URL" --comment "Auto-closed: this $SUBMODULE bump touches no files under csgo/ or steam/."
