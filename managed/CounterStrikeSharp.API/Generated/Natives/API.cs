@@ -1806,6 +1806,17 @@ namespace CounterStrikeSharp.API.Core
 			}
 		}
 
+        public static short GetSchemaChainOffset(string classname){
+			lock (ScriptContext.GlobalScriptContext.Lock) {
+			ScriptContext.GlobalScriptContext.Reset();
+			ScriptContext.GlobalScriptContext.PushString(classname);
+			ScriptContext.GlobalScriptContext.SetIdentifier(0x43820E1D);
+			ScriptContext.GlobalScriptContext.Invoke();
+			ScriptContext.GlobalScriptContext.CheckErrors();
+			return ScriptContext.GlobalScriptContext.GetResultPrimitive<short>();
+			}
+		}
+
         public static bool IsSchemaFieldNetworked(string classname, string propname){
 			lock (ScriptContext.GlobalScriptContext.Lock) {
 			ScriptContext.GlobalScriptContext.Reset();

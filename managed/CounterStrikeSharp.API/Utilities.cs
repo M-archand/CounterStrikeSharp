@@ -250,19 +250,9 @@ namespace CounterStrikeSharp.API
 
         private static readonly ConcurrentDictionary<string, int> _chainOffsets = new();
 
-        // Only component classes declare __m_pChainEntity; the unknown-field NativeException means "no chain" for the rest.
+        // 0 when neither the class nor its bases declare __m_pChainEntity (only component classes do).
         private static int FindSchemaChain(string className) =>
-            _chainOffsets.GetOrAdd(className, static name =>
-            {
-                try
-                {
-                    return Schema.GetSchemaOffset(name, "__m_pChainEntity");
-                }
-                catch (NativeException)
-                {
-                    return 0;
-                }
-            });
+            _chainOffsets.GetOrAdd(className, static name => NativeAPI.GetSchemaChainOffset(name));
 
         /// <summary>
         /// Marks a field as changed for network transmission.

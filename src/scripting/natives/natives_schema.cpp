@@ -50,6 +50,14 @@ int16 GetSchemaOffset(ScriptContext& script_context)
     return m_key.offset;
 }
 
+// Offset of __m_pChainEntity, 0 when neither the class nor its bases declare one.
+int16 GetSchemaChainOffset(ScriptContext& script_context)
+{
+    auto className = script_context.GetArgument<const char*>(0);
+
+    return schema::FindChainOffset(className);
+}
+
 bool IsSchemaFieldNetworked(ScriptContext& script_context)
 {
     auto className = script_context.GetArgument<const char*>(0);
@@ -166,6 +174,7 @@ void SchemaNetworkStateChanged(ScriptContext& script_context)
 
 REGISTER_NATIVES(schema, {
     ScriptEngine::RegisterNativeHandler("GET_SCHEMA_OFFSET", GetSchemaOffset);
+    ScriptEngine::RegisterNativeHandler("GET_SCHEMA_CHAIN_OFFSET", GetSchemaChainOffset);
     ScriptEngine::RegisterNativeHandler("IS_SCHEMA_FIELD_NETWORKED", IsSchemaFieldNetworked);
     ScriptEngine::RegisterNativeHandler("GET_SCHEMA_VALUE_BY_NAME", GetSchemaValueByName);
     ScriptEngine::RegisterNativeHandler("SET_SCHEMA_VALUE_BY_NAME", SetSchemaValueByName);

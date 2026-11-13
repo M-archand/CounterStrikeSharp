@@ -158,24 +158,22 @@ int16_t schema::FindChainOffset(const char* className)
 {
     CSchemaSystemTypeScope* pType = counterstrikesharp::globals::schemaSystem->FindTypeScopeForModule(MODULE_PREFIX "server" MODULE_EXT);
 
-    if (!pType) return false;
+    if (!pType) return 0;
 
-    auto* pClassInfo = pType->FindDeclaredClass(className).Get();
+    SchemaClassInfoData_t* pClassInfo = pType->FindDeclaredClass(className).Get();
 
-    do
+    // Walk the single-inheritance chain; a root class has no base to step to.
+    while (pClassInfo)
     {
-        SchemaClassFieldData_t* pFields = pClassInfo->m_pFields;
-        const auto fieldsSize = pClassInfo->m_nNumFields;
-        for (int i = 0; i < fieldsSize; ++i)
+        for (int i = 0; i < pClassInfo->m_nNumFields; ++i)
         {
-            SchemaClassFieldData_t& field = pFields[i];
+            SchemaClassFieldData_t& field = pClassInfo->m_pFields[i];
 
-            if (V_strcmp(field.m_pName, "__m_pChainEntity") == 0)
-            {
-                return field.m_nSingleInheritanceOffset;
-            }
+            if (V_strcmp(field.m_pName, "__m_pChainEntity") == 0) return field.m_nSingleInheritanceOffset;
         }
-    } while ((pClassInfo = pClassInfo->m_pBaseClasses->m_pClass) != nullptr);
+
+        pClassInfo = pClassInfo->m_nNumBaseClasses > 0 ? pClassInfo->m_pBaseClasses->m_pClass : nullptr;
+    }
 
     return 0;
 }

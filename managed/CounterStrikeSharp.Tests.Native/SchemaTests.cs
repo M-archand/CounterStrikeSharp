@@ -86,7 +86,7 @@ public class SchemaTests
     [Fact]
     public void SetStateChanged_ClassWithoutChainEntity_DoesNotThrow()
     {
-        Assert.Throws<NativeException>(() => Schema.GetSchemaOffset("CBaseEntity", "__m_pChainEntity"));
+        Assert.Equal(0, NativeAPI.GetSchemaChainOffset("CBaseEntity"));
 
         var entity = Utilities.CreateEntityByName<CBaseModelEntity>("prop_dynamic");
         Assert.NotNull(entity);
@@ -110,6 +110,18 @@ public class SchemaTests
     public void GetSchemaOffset_ComponentClass_DeclaresChainEntity()
     {
         Assert.True(Schema.GetSchemaOffset("CBodyComponent", "__m_pChainEntity") > 0);
+    }
+
+    [Theory]
+    [InlineData("CBodyComponent", true)]
+    [InlineData("CCSPlayer_ItemServices", true)] // inherited from CPlayerPawnComponent
+    [InlineData("CCSPlayerController_InventoryServices", true)] // inherited from CPlayerControllerComponent
+    [InlineData("CBaseEntity", false)]
+    [InlineData("CCSPlayerController", false)]
+    [InlineData("CDoesNotExist", false)]
+    public void GetSchemaChainOffset_WalksBaseClasses_NoWarningOnMiss(string className, bool expected)
+    {
+        Assert.Equal(expected, NativeAPI.GetSchemaChainOffset(className) > 0);
     }
 
     [Fact]
