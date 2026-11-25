@@ -1,3 +1,11 @@
+## What's Changed in v1.0.383
+* chore(deps): bump libraries/Protobufs from `01c423c` to `624aabf` in [#46](https://github.com/M-archand/CounterStrikeSharp/pull/46) ([0269c64](https://github.com/M-archand/CounterStrikeSharp/commit/0269c64b811a81a341dc4c8126cbe71fd3039271))
+* chore(deps): bump libraries/Protobufs from `01c423c` to `624aabf` by [@dependabot[bot]](https://github.com/dependabot[bot]) ([25cea0f](https://github.com/M-archand/CounterStrikeSharp/commit/25cea0fa5d6f1e6c62c36746fcf53e88d41f0a3c))
+* fix: schema char array out of bounds write error by [@makadore](https://github.com/makadore) ([0e22286](https://github.com/M-archand/CounterStrikeSharp/commit/0e222861cee07bd2ae7edd1a3b311183d1b5ce12))
+* fix: bound RunThink to player slots by [@makadore](https://github.com/makadore) ([395f8a0](https://github.com/M-archand/CounterStrikeSharp/commit/395f8a0ba5e598dfded7cd81087e2ed9d4598c6b))
+* chore(deps): pin s2sdk to 64de8f61 for CS2 1.42.0.1 ISource2Server vtable shift ([10b9925](https://github.com/M-archand/CounterStrikeSharp/commit/10b9925bafec4eeedf1c10855e70cb22f67c3ab3))
+* ci: auto-close Dependabot Protobufs bumps that touch neither csgo/ nor steam/ ([e6e8a21](https://github.com/M-archand/CounterStrikeSharp/commit/e6e8a2161b8620db359be30099fd831229aff0d9))
+
 ## What's Changed in v1.0.382
 * fix(sigs): IsValidNavMesh (windows) ([a789fda](https://github.com/M-archand/CounterStrikeSharp/commit/a789fda0826377073643a3b40755a53d0330abc8))
 * fix(sigs): ClientPrint (linux) ([579f034](https://github.com/M-archand/CounterStrikeSharp/commit/579f034be1f9ae310057fd8e1cccac9a180da619))
